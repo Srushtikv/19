@@ -1,0 +1,98 @@
+import heapq
+
+# Goal state we want to reach
+GOAL = [[1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 0]]
+
+# All possible directions: up, down, left, right
+MOVES = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+# Heuristic function: Manhattan distance
+def manhattan(state):
+    distance = 0
+    for i in range(3):
+        for j in range(3):
+            value = state[i][j]
+            if value != 0:
+                # Goal position of current tile
+                goal_x = (value - 1) // 3
+                goal_y = (value - 1) % 3
+                # Sum of horizontal and vertical distances
+                distance += abs(i - goal_x) + abs(j - goal_y)
+    return distance
+
+# Generate all valid neighboring states from current state
+def get_neighbors(state):
+    neighbors = []
+    # Find the position of the blank tile (0)
+    x, y = [(ix, iy) for ix, row in enumerate(state)
+                    for iy, i in enumerate(row) if i == 0][0]
+
+    # Try moving the blank in each direction
+    for dx, dy in MOVES:
+        nx, ny = x + dx, y + dy
+        # Check if new position is within bounds
+        if 0 <= nx < 3 and 0 <= ny < 3:
+            # Create a deep copy of the state
+            new_state = [row[:] for row in state]
+            # Swap blank with adjacent tile
+            new_state[x][y], new_state[nx][ny] = new_state[nx][ny], new_state[x][y]
+            neighbors.append(new_state)
+    return neighbors
+
+# Convert 2D list to tuple of tuples so it can be stored in sets/dictionaries
+def state_to_tuple(state):
+    return tuple(tuple(row) for row in state)
+
+# A* Algorithm implementation
+def astar(start):
+    heap = []  # Priority queue (min-heap)
+    visited = set()  # Set of explored states
+
+    g = {state_to_tuple(start): 0}  # Cost from start to state
+    f = {state_to_tuple(start): manhattan(start)}  # Estimated total cost (g + h)
+
+    # Push starting state to heap with its f value
+    heapq.heappush(heap, (f[state_to_tuple(start)], start, []))
+
+    while heap:
+        _, current, path = heapq.heappop(heap)
+        current_tuple = state_to_tuple(current)
+
+        # Check if goal state is reached
+        if current == GOAL:
+            return path + [current]
+
+        if current_tuple in visited:
+            continue
+        visited.add(current_tuple)
+
+        # Expand neighbors of current state
+        for neighbor in get_neighbors(current):
+            neighbor_tuple = state_to_tuple(neighbor)
+            tentative_g = g[current_tuple] + 1  # Cost to reach neighbor
+
+            # If this path to neighbor is better, or not explored yet
+            if neighbor_tuple not in g or tentative_g < g[neighbor_tuple]:
+                g[neighbor_tuple] = tentative_g
+                f[neighbor_tuple] = tentative_g + manhattan(neighbor)
+                # Push neighbor to heap with updated path
+                heapq.heappush(heap, (f[neighbor_tuple], neighbor, path + [current]))
+
+    # No solution found
+    return None
+start_state = [[1, 2, 3],
+               [4, 0, 6],
+               [7, 5, 8]]
+
+solution = astar(start_state)
+
+if solution:
+    print("Steps to goal:")
+    for step in solution:
+        for row in step:
+            print(row)
+        print("------")
+else:
+    print("No solution found.")
