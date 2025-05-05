@@ -1,0 +1,70 @@
+import re  # Importing the regular expression module
+
+# Define the chatbot's response function
+def get_response(user_input):
+    user_input = user_input.lower()  # Convert the user input to lowercase to make matching case-insensitive
+
+    # Check if the user is asking for available services
+    if re.search(r"services?", user_input):
+        return "We offer a wide range of services including web development, mobile app development, and digital marketing."
+
+    # Check if the user asks about the company
+    elif re.search(r"company", user_input):
+        return "Our company is dedicated to providing high-quality technology solutions with customer satisfaction at the core of our work."
+
+    # Check if the user asks about pricing
+    elif re.search(r"price|cost", user_input):
+        return "Our pricing depends on the project scope. Please contact us with details about your project for a custom quote."
+
+    # Respond if the user is asking about business hours
+    elif re.search(r"hours|business hours", user_input):
+        return "We are available Monday to Friday, from 9 AM to 6 PM."
+
+    # If the user is asking for contact information
+    elif re.search(r"contact|email|phone", user_input):
+        return "You can reach us at support@company.com or call us at (123) 456-7890."
+
+    # Respond to general inquiries or greeting
+    elif re.search(r"\b(hi|hello|hey)\b", user_input):
+        return "Hello! How can I assist you today?"
+
+    # Respond to thank you or appreciation
+    elif re.search(r"(thank you|thanks)", user_input):
+        return "You're welcome! Feel free to ask if you have any other questions."
+
+    # Respond when user wants to exit
+    elif re.search(r"(bye|exit|quit)", user_input):
+        return "Thank you for chatting with us. Have a great day ahead!"
+
+    # Default response if no match is found
+    else:
+        return "I'm sorry, I didn't quite get that. Could you please rephrase your question?"
+
+# Chat loop to maintain interaction
+def chat():
+    print("🤖 Welcome to our FAQ Assistant! Type 'exit' to end the chat.")
+    while True:
+        user_input = input("You: ")  # Get user input
+        if user_input.lower() in ["exit", "quit", "bye"]:
+            print("Bot: Thank you for chatting with us. Have a great day ahead!")
+            break  # Exit the chat loop if the user says bye
+        response = get_response(user_input)  # Get chatbot's response based on input
+        print("Bot:", response)  # Output the response to the user
+
+# Start the chatbot
+chat()
+
+
+
+Output
+🤖 Welcome to our FAQ Assistant! Type 'exit' to end the chat.
+You: Hi
+Bot: Hello! How can I assist you today?
+You: What services do you offer?
+Bot: We offer a wide range of services including web development, mobile app development, and digital marketing.
+You: What are your business hours?
+Bot: We are available Monday to Friday, from 9 AM to 6 PM.
+You: Thank you!
+Bot: You're welcome! Feel free to ask if you have any other questions.
+You: Bye
+Bot: Thank you for chatting with us. Have a great day ahead!
