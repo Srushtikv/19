@@ -1,0 +1,75 @@
+def print_solution(board):
+    """
+    This function prints the board with the positions of queens ('Q') and empty spaces ('.').
+    Each row of the board represents a row in the N-Queens chessboard.
+    """
+    for row in board:
+        print(" ".join("Q" if col else "." for col in row))  # Print 'Q' for queen, '.' for empty space
+    print("\n")  # Newline for separating multiple solutions
+
+def is_safe(board, row, col, n, left_row, upper_diag, lower_diag):
+    """
+    This function checks if it's safe to place a queen at position (row, col).
+    We check for the following conditions:
+    - No other queen is placed in the same row (left_row)
+    - No other queen is placed in the same upper diagonal (upper_diag)
+    - No other queen is placed in the same lower diagonal (lower_diag)
+    """
+    if left_row[row] or upper_diag[row - col + n - 1] or lower_diag[row + col]:
+        return False  # If any condition fails, return False (unsafe)
+    return True  # If all conditions pass, return True (safe)
+
+def solve_n_queens_util(board, col, n, left_row, upper_diag, lower_diag, solutions):
+    """
+    This is a recursive utility function that tries to place queens in the board.
+    - It tries placing queens in each row for a given column.
+    - It uses backtracking to explore all possible solutions.
+    """
+    if col >= n:
+        # If all queens are placed (i.e., col reaches n), save the solution.
+        solutions.append([row[:] for row in board])  # Add a copy of the current board to solutions
+        return
+
+    # Try placing a queen in each row of the current column (col)
+    for row in range(n):
+        if is_safe(board, row, col, n, left_row, upper_diag, lower_diag):
+            # Place the queen
+            board[row][col] = 1
+            left_row[row] = upper_diag[row - col + n - 1] = lower_diag[row + col] = True  # Mark these as occupied
+
+            # Recursively attempt to place queens in the next column
+            solve_n_queens_util(board, col + 1, n, left_row, upper_diag, lower_diag, solutions)
+
+            # Backtrack: Remove the queen and reset the flags
+            board[row][col] = 0
+            left_row[row] = upper_diag[row - col + n - 1] = lower_diag[row + col] = False
+
+def solve_n_queens(n):
+    """
+    This is the main function that solves the N-Queens problem.
+    It initializes the board and the data structures to track the rows and diagonals
+    and then calls the recursive utility function to find all solutions.
+    """
+    # Initialize an n x n board with 0s (empty cells)
+    board = [[0] * n for _ in range(n)]
+
+    # Arrays to track the status of each row and diagonals
+    left_row = [False] * n  # Tracks if a queen is placed in a row
+    upper_diag = [False] * (2 * n - 1)  # Tracks if a queen is placed in an upper diagonal
+    lower_diag = [False] * (2 * n - 1)  # Tracks if a queen is placed in a lower diagonal
+
+    solutions = []  # List to store all solutions
+
+    # Call the recursive function to solve the N-Queens problem
+    solve_n_queens_util(board, 0, n, left_row, upper_diag, lower_diag, solutions)
+
+    return solutions  # Return all found solutions
+
+# Example usage: Solve the 4-Queens Problem
+n = 4
+solutions = solve_n_queens(n)
+
+# Output the number of solutions and print each solution
+print(f"Total solutions for {n}-Queens problem:", len(solutions))
+for sol in solutions:
+    print_solution(sol)
